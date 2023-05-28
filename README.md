@@ -25,7 +25,7 @@ To get started with WackyWarper, follow these simple steps:
 
     `pip install -r requirements.txt`
 
-2. Uploade your Images and labels into the train folder which already have images and labels folder created for you!
+2. Uploade your Images and labels into the train folder with a folder name of `images` and `labels`!
 
     **Just paste your images and labels respectivly into that Train folder**
     
