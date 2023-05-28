@@ -3,7 +3,7 @@
 **Welcome to WackyWarper,  the wackiest image augmentor for your YOLO object detection data! 🎉🔍**
 
 <p align="center">
-  <img src="reamefiledata\tiger.jpg" alt="WackyWarper Logo">
+  <img src="readmefiledata\tiger.jpg" alt="WackyWarper Logo">
 </p>
 
 ## Why WackyWarper?🐋
