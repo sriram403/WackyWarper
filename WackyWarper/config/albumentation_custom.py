@@ -37,8 +37,8 @@ by adding a small random value to each channel's pixel intensity,
 introducing color variations and simulating changes in lighting conditions or color imbalances.
 '''
 
-W = 1920 # Crop_Width
-H = 1080 # Crop_Height
+W = 1000 # Crop_Width
+H = 1000 # Crop_Height
 HF = 0.5 # HorizontalFlip probability value
 RBC = 0.2 # RandomBrightnessContrast probability value
 LIMIT,VALUE_TO_ROTATE = 10,0.2 # Rotate maximum rotation angle, magnitude of rotation
@@ -46,10 +46,10 @@ B = 0.2 # Blur probability value
 CJ_BRIGHTNESS,CJ_CONTRAST,CJ_SATURATION,CJ_VALUE = 0.2,0.2,0.2,0.2 # ColorJitter
 RG = 0.2 # RandomGamma probability value
 RGBS = 0.2 # RGBShift probability value
-VF = 0.5 # VerticalFlip probability value
+VF = 0.8 # VerticalFlip probability value
 
 augmentor_without_boudingbox = alb.Compose([
-            alb.RandomCrop(width=W, height=H), 
+        #     alb.RandomCrop(width=W, height=H), 
             alb.HorizontalFlip(p=HF),
             alb.RandomBrightnessContrast(p=RBC),
             alb.Rotate(limit=LIMIT, p=VALUE_TO_ROTATE),
@@ -60,7 +60,7 @@ augmentor_without_boudingbox = alb.Compose([
             alb.VerticalFlip(p=VF)])
 
 augmentor = alb.Compose([            
-            alb.RandomCrop(width=W, height=H), 
+        #     alb.RandomCrop(width=W, height=H), 
             alb.HorizontalFlip(p=HF),
             alb.RandomBrightnessContrast(p=RBC),
             alb.Rotate(limit=LIMIT, p=VALUE_TO_ROTATE),

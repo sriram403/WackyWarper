@@ -42,8 +42,8 @@ def Visualize(image_path,label_path):
         cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
 
         # Display class label
-        class_label = f"Class: {class_id}"
-        cv2.putText(image, class_label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2)
+        class_label = f"{class_id}"
+        cv2.putText(image, class_label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 0), 2)
 
     # Display the image with bounding box annotations
     cv2.imshow("Image with Bounding Boxes", image)
