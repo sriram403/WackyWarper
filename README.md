@@ -39,6 +39,24 @@ To get started with WackyWarper, follow these simple steps:
 
 And that's it! Your YOLO dataset is now wackier than ever before! 🚀🤪
 
+## How to use this 🤖
+To Start you need your data to be in these format 
+
+`Train`-> `images` which should contains your images and `labels` which should contains your labels (-> means Subfolder)
+
+⚠
+**`images`, `labels` The subfolders names are needs to be in this naming convention!**
+
+and if you had `Valid` and `Test` data then they also needs to be in this same convention
+
+Inside the `main.py` mention your Folder name in the `list_of_directory` like ["Train","Valid","Test"]
+
+<p align="center">
+  <img src="readmefiledata\mention names.png" alt="mention names">
+</p>
+
+And choose the other options you need and run ☕
+
 ## Contribute🐱‍💻
 We welcome contributions from fellow enthusiasts like yourself! If you have an idea for a new transformation or would like to fix any issues, please feel free to submit a pull request. We promise we won't judge you for your wackiness!🥂
 

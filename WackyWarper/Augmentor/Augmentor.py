@@ -1,5 +1,5 @@
 import os
-import cv2
+import cv2,shutil
 from WackyWarper.config import albumentation_custom as alb_c
 
 def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed:int):
@@ -30,8 +30,9 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed
     images_needed-> How many augmented_images do you need per image
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     '''
+
     folder_name = header_folder_name
-    for partition in list_of_directory: 
+    for partition in list_of_directory:
         for image in os.listdir(os.path.join(partition, 'images')):
             img = cv2.imread(os.path.join(partition, 'images', image))
             coords_list = []
@@ -52,7 +53,21 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed
                     augmented = alb_c.augmentor_without_boudingbox(image=img)
                 directory_path = os.path.join(folder_name, partition, 'images')
                 os.makedirs(directory_path, exist_ok=True)
-                cv2.imwrite(os.path.join(folder_name, partition, 'images', f'{image.split(".")[0]}.{x}.jpg'),augmented['image'])
+
+                # Copy the original image to the augmented folder
+                original_image_path = os.path.join(partition, 'images', image)
+                new_image_path = os.path.join(folder_name, partition, 'images', f'{image.split(".")[0]}.jpg')
+                shutil.copyfile(original_image_path, new_image_path)
+
+                directory_path_labels = os.path.join(folder_name, partition, 'labels')
+                os.makedirs(directory_path_labels, exist_ok=True)
+
+                # Move the original label file to the augmented label folder
+                original_label_path = os.path.join(partition, 'labels', f'{image.split(".")[0]}.txt')
+                new_label_path = os.path.join(folder_name, partition, 'labels', f'{image.split(".")[0]}.txt')
+                shutil.copyfile(original_label_path, new_label_path)
+
+                cv2.imwrite(os.path.join(folder_name, partition, 'images', f'{image.split(".")[0]}.{x}.jpg'), augmented['image'])
                 annotation = []
                 if os.path.exists(label_path):
                     for i in range(len(coords_list)):
@@ -68,8 +83,6 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed
                     annotation.append(0)
                     annotation.append(0)
                     annotation.append(0)
-        
-                directory_path_labels = os.path.join(folder_name, partition, 'labels')
-                os.makedirs(directory_path_labels, exist_ok=True)
-                with open(os.path.join(folder_name, partition, 'labels', f'{image.split(".")[0]}.{x}.txt'),'w') as f:
+
+                with open(os.path.join(folder_name, partition, 'labels', f'{image.split(".")[0]}.{x}.txt'), 'w') as f:
                     f.write('\n'.join(' '.join(map(str, annotation[i:i+5])) for i in range(0, len(annotation), 5)))
