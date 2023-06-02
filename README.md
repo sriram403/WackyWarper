@@ -25,11 +25,7 @@ To get started with WackyWarper, follow these simple steps:
 
     `pip install -r requirements.txt`
 
-2. Uploade your Images and labels into the train folder with a folder name of `images` and `labels`!
-
-    **Just paste your images and labels respectivly into that Train folder**
-    
-    (*or create your own folders of train, valid, test*)
+2. Give your `Image dir` and `Label dir` as an argument to the function
 
 3. Run the `main.py` file
 
@@ -40,19 +36,12 @@ To get started with WackyWarper, follow these simple steps:
 And that's it! Your YOLO dataset is now wackier than ever before! 🚀🤪
 
 ## How to use this 🤖
-To Start you need your data to be in these format 
+To Start you need your data (Image, Label) `yolo format for now`
 
-`Train`-> `images` which should contains your images and `labels` which should contains your labels (-> means Subfolder)
-
-⚠
-**`images`, `labels` The subfolders names are needs to be in this naming convention!**
-
-and if you had `Valid` and `Test` data then they also needs to be in this same convention
-
-Inside the `main.py` mention your Folder name in the `list_of_directory` like ["Train","Valid","Test"]
+Inside the `main.py` mention your Image directory in the IMG_DIR and label directory in LABEL_DIR like
 
 <p align="center">
-  <img src="readmefiledata\mention names.png" alt="mention names">
+  <img src="readmefiledata\main .png" alt="mention names">
 </p>
 
 And choose the other options you need and run ☕

@@ -1,15 +1,14 @@
-from WackyWarper.Augmentor import Augmentor
-from WackyWarper import helper_functions
+from WackyWarper import Whole_PipeLine 
 
-list_of_directory = ["test"]
-header_directory_name = "New_Augmented_Image"
+header_directory_name = "New_Augmented_Data" # just some name
 Number_Of_Images_Needed = 1 # images per each
 
-image_chosen = "a4_16.0"
-image_to_look = f"ImageData/train/images/{image_chosen}.jpg" # give the image file path to visualize
-label_for_that = f"ImageData/train/labels/{image_chosen}.txt" # give the label file path corresponding to the image
 
-if __name__ == "__main__":
-    Augmentor.Start_Augmentor(list_of_directory, header_directory_name, Number_Of_Images_Needed)
-    # helper_functions.Visualize(image_to_look,label_for_that) # to visualize the image
-    pass
+Whole_PipeLine.Give_Me_Augmented_Data(
+                                    IMG_DIR = "data/images/",
+                                    LABEL_DIR = "data/labels/",
+                                    TRAIN_RATIO = 0.80,
+                                    VALID_RATIO = 0.15,
+                                    AUGMENTED_HEADER_NAME = header_directory_name,
+                                    NUMBER_OF_IMAGES_NEEDED = Number_Of_Images_Needed
+                                    )

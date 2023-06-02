@@ -69,11 +69,16 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
     You would just get a folder of Train, Valid, Test 
     which contains subfolders of images, labels
     '''
-
+    print(">>Data Split Started<<")
     # Create directories for train, test, and validation sets
-    train_dir = "Train"
-    valid_dir = "Valid"
-    test_dir = "Test"
+    train_dir = "Splitted/Train"
+    valid_dir = "Splitted/Valid"
+    test_dir = "Splitted/Test"
+
+    if os.path.exists(train_dir):
+        shutil.rmtree(train_dir)
+        shutil.rmtree(valid_dir)
+        shutil.rmtree(test_dir)
     
     os.makedirs(train_dir, exist_ok=True)
     os.makedirs(test_dir, exist_ok=True)
@@ -83,15 +88,16 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
     image_files = [f for f in os.listdir(image_dir)]
 
     # Shuffle the list of image files randomly
-    random.shuffle(image_files)
+    image_file = random.sample(image_files,len(image_files))
 
     # Calculate the number of images for each split based on the ratios
-    total_images = len(image_files)
+    total_images = len(image_file)
     train_split = int(total_images * train_ratio)
     valid_split = int(total_images * valid_ratio)
 
     # Move images to the respective split directories
-    for i, image_file in enumerate(image_files):
+    random.shuffle(image_file)
+    for i, img_fle in enumerate(image_file):
         if i < train_split:
             split_dir = train_dir
         elif i < train_split + valid_split:
@@ -100,13 +106,13 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
             split_dir = test_dir
 
         # Copy the image file to the split directory
-        image_src = os.path.join(image_dir, image_file)
-        image_dst = os.path.join(split_dir, "images", image_file)
+        image_src = os.path.join(image_dir, img_fle)
+        image_dst = os.path.join(split_dir, "images", img_fle)
         os.makedirs(os.path.dirname(image_dst), exist_ok=True)
         shutil.copy(image_src, image_dst)
 
         # Get the corresponding label file
-        label_prefix = os.path.splitext(image_file)[0]
+        label_prefix = os.path.splitext(img_fle)[0]
         label_file = label_prefix + ".txt"
 
         # Copy the label file to the split directory
@@ -115,7 +121,7 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
         os.makedirs(os.path.dirname(label_dst), exist_ok=True)
         shutil.copy(label_src, label_dst)
 
-    print("Dataset split completed successfully.")
+    print(">>Dataset split completed successfully.<<")
 
 def Rename_Files(Image_Dir_List,Label_Dir_List,New_Name):
     '''
