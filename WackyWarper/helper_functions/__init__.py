@@ -123,33 +123,34 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
 
     print(">>Dataset split completed successfully.<<")
 
-def Rename_Files(Image_Dir_List,Label_Dir_List,New_Name):
-    '''
-    Image_Dir_List-> Your Image directory
-    Label_Dir_List-> Your Label directory
-    New_Name-> What your files to be renamed after
-    '''
-    folder_images_path = Image_Dir_List
-    folder_label_path = Label_Dir_List
-    Give_Me_Name = New_Name
+# Under construction...
+# def Rename_Files(Image_Dir_List,Label_Dir_List,New_Name):
+#     '''
+#     Image_Dir_List-> Your Image directory
+#     Label_Dir_List-> Your Label directory
+#     New_Name-> What your files to be renamed after
+#     '''
+#     folder_images_path = Image_Dir_List
+#     folder_label_path = Label_Dir_List
+#     Give_Me_Name = New_Name
 
-    for dir in folder_images_path:
-        file_list = os.listdir(dir)
+#     for dir in folder_images_path:
+#         file_list = os.listdir(dir)
 
-        for i, filename in enumerate(file_list):
-            new_filename = f"{Give_Me_Name}{i+1}.jpg"
-            old_filepath = os.path.join(dir, filename)
-            new_filepath = os.path.join(dir, new_filename)
-            os.rename(old_filepath, new_filepath)
+#         for i, filename in enumerate(file_list):
+#             new_filename = f"{Give_Me_Name}{i+1}.jpg"
+#             old_filepath = os.path.join(dir, filename)
+#             new_filepath = os.path.join(dir, new_filename)
+#             os.rename(old_filepath, new_filepath)
             
-            print(f"Renamed {filename} to {new_filename}")
-    for dir in folder_label_path:
-        file_list = os.listdir(dir)
+#             print(f"Renamed {filename} to {new_filename}")
+#     for dir in folder_label_path:
+#         file_list = os.listdir(dir)
 
-        for i,filename in enumerate(file_list):
-            new_filename = f"{Give_Me_Name}{i+1}.txt"
-            old_filepath = os.path.join(dir,filename)
-            new_filepath = os.path.join(dir,new_filename)
-            os.rename(old_filepath,new_filepath)
+#         for i,filename in enumerate(file_list):
+#             new_filename = f"{Give_Me_Name}{i+1}.txt"
+#             old_filepath = os.path.join(dir,filename)
+#             new_filepath = os.path.join(dir,new_filename)
+#             os.rename(old_filepath,new_filepath)
 
-            print(f"Renamed {filename} to {new_filename}")
+#             print(f"Renamed {filename} to {new_filename}")
