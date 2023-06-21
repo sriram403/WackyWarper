@@ -71,14 +71,12 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
     '''
     print(">>Data Split Started<<")
     # Create directories for train, test, and validation sets
-    train_dir = "Splitted/Train"
-    valid_dir = "Splitted/Valid"
-    test_dir = "Splitted/Test"
+    train_dir = "Splitted\Train"
+    valid_dir = "Splitted\Valid"
+    test_dir = "Splitted\Test"
 
     if os.path.exists(train_dir):
         shutil.rmtree(train_dir)
-        shutil.rmtree(valid_dir)
-        shutil.rmtree(test_dir)
     
     os.makedirs(train_dir, exist_ok=True)
     os.makedirs(test_dir, exist_ok=True)
@@ -108,18 +106,22 @@ def Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
         # Copy the image file to the split directory
         image_src = os.path.join(image_dir, img_fle)
         image_dst = os.path.join(split_dir, "images", img_fle)
+
         os.makedirs(os.path.dirname(image_dst), exist_ok=True)
         shutil.copy(image_src, image_dst)
 
         # Get the corresponding label file
         label_prefix = os.path.splitext(img_fle)[0]
         label_file = label_prefix + ".txt"
-
-        # Copy the label file to the split directory
-        label_src = os.path.join(label_dir, label_file)
-        label_dst = os.path.join(split_dir, "labels", label_file)
-        os.makedirs(os.path.dirname(label_dst), exist_ok=True)
-        shutil.copy(label_src, label_dst)
+        label_path = os.path.join(label_dir,label_file)
+        if os.path.exists(label_path):
+            # Copy the label file to the split directory
+            label_dst = os.path.join(split_dir, "labels", label_file)
+            os.makedirs(os.path.dirname(label_dst), exist_ok=True)
+            shutil.copy(label_path, label_dst)
+        else:
+            label_dst = os.path.join(split_dir, "labels", label_file)
+            os.makedirs(os.path.dirname(label_dst), exist_ok=True)
 
     print(">>Dataset split completed successfully.<<")
 
