@@ -18,19 +18,19 @@ def Give_Me_Augmented_Data(IMG_DIR:dir,
     
     helper_functions.Split_Dataset(IMG_DIR, LABEL_DIR, TRAIN_RATIO, VALID_RATIO)
 
-    list_of_directory = ["Splitted/Train"]
+    list_of_directory = ["Splitted\Train", "Splitted\Valid", "Splitted\Test"]
 
     Augmentor.New_Start_Augmentor(list_of_directory, AUGMENTED_HEADER_NAME, NUMBER_OF_IMAGES_NEEDED)
 
-    source_folder = ["Splitted/Valid","Splitted/Test"]
-    for i in source_folder:
-        shutil.move(i, AUGMENTED_HEADER_NAME)
+    # source_folder = ["Splitted/Valid","Splitted/Test"]
+    # for i in source_folder:
+    #     shutil.move(i, AUGMENTED_HEADER_NAME)
     
-    valid_files = os.listdir(AUGMENTED_HEADER_NAME+"/"+"Valid"+"/"+"labels")
-    test_files = os.listdir(AUGMENTED_HEADER_NAME+"/"+"Test"+"/"+"labels")
-    for i in valid_files:
-        check_and_fill_txt_file(os.path.join(AUGMENTED_HEADER_NAME,"Valid","labels",i))
-    for i in test_files:
-        check_and_fill_txt_file(os.path.join(AUGMENTED_HEADER_NAME,"Test","labels",i))
+    # valid_files = os.listdir(AUGMENTED_HEADER_NAME+"/"+"Valid"+"/"+"labels")
+    # test_files = os.listdir(AUGMENTED_HEADER_NAME+"/"+"Test"+"/"+"labels")
+    # for i in valid_files:
+    #     check_and_fill_txt_file(os.path.join(AUGMENTED_HEADER_NAME,"Valid","labels",i))
+    # for i in test_files:
+    #     check_and_fill_txt_file(os.path.join(AUGMENTED_HEADER_NAME,"Test","labels",i))
     print(">>I Finished All the Process<<")
     

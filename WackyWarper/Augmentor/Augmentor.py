@@ -52,7 +52,8 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed
                         augmented = alb_c.augmentor(image=img, bboxes=coords_list, class_labels=['face'] * len(coords_list))
                     else:
                         augmented = alb_c.augmentor_without_boudingbox(image=img)
-                    partitionl = partition.split("/")[1]    
+                    print(partition)
+                    partitionl = partition.split("\\")[1]    
                     directory_path = os.path.join(folder_name, partitionl, 'images')
                     os.makedirs(directory_path, exist_ok=True)
                     # Copy the original image to the augmented folder
@@ -66,10 +67,10 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed
                     # Move the original label file to the augmented label folder
                     if coords_list:
                         original_label_path = os.path.join(partition, 'labels', f'{image.split(".")[0]}.txt')
-                        new_label_path = os.path.join(folder_name, partition, 'labels', f'{image.split(".")[0]}.txt')
+                        new_label_path = os.path.join(folder_name, partitionl, 'labels', f'{image.split(".")[0]}.txt')
                         shutil.copyfile(original_label_path, new_label_path)
                     else:
-                        with open(f'{folder_name}\{partition}\labels\{image.split(".")[0]}.txt','w') as f:
+                        with open(f'{folder_name}\{partitionl}\labels\{image.split(".")[0]}.txt','w') as f:
                             f.write("0 0 0 0 0")
 
                     cv2.imwrite(os.path.join(folder_name, partitionl, 'images', f'{image.split(".")[0]}.{x}.jpg'), augmented['image'])
@@ -98,7 +99,9 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str,images_needed
 
                     with open(os.path.join(folder_name, partitionl, 'labels', f'{image.split(".")[0]}.{x}.txt'), 'w') as f:
                         f.write('\n'.join(' '.join(map(str, annotation[i:i+5])) for i in range(0, len(annotation), 5)))
-                except:
+                except Exception as e:
+                    # print("Didn't Augment")
+                    # print(e)
                     continue
     print(">>Augmentation Ended<<")
 
@@ -155,11 +158,11 @@ def New_Start_Augmentor(list_of_directory:list, header_folder_name:str,images_ne
                         augmented = alb_c.augmentor(image=img, bboxes=coords_list, class_labels=['face'] * len(coords_list))
                     else:
                         augmented = alb_c.augmentor_without_boudingbox(image=img)
-                    partitionl = partition.split("/")[1] 
+                    partitionl = partition.split("\\")[1] 
                     directory_path = os.path.join(folder_name, partitionl, 'images')
                     os.makedirs(directory_path, exist_ok=True)
                     # Copy the original image to the augmented folder
-                    original_image_path = os.path.join(partitionl, 'images', image)
+                    original_image_path = os.path.join(partition, 'images', image)
                     new_image_path = os.path.join(folder_name, partitionl, 'images', f'{image.split(".")[0]}.jpg')
                     shutil.copyfile(original_image_path, new_image_path)
 
@@ -168,7 +171,7 @@ def New_Start_Augmentor(list_of_directory:list, header_folder_name:str,images_ne
 
                     # Move the original label file to the augmented label folder
                     if coords_list:
-                        original_label_path = os.path.join(partitionl, 'labels', f'{image.split(".")[0]}.txt')
+                        original_label_path = os.path.join(partition, 'labels', f'{image.split(".")[0]}.txt')
                         new_label_path = os.path.join(folder_name, partitionl, 'labels', f'{image.split(".")[0]}.txt')
                         shutil.copyfile(original_label_path, new_label_path)
                     else:
