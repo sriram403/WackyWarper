@@ -1,4 +1,4 @@
 matplotlib
-os
-cv2
+pytest-shutil
+opencv-python
 albumentations
