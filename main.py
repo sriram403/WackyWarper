@@ -1,5 +1,4 @@
 from WackyWarper import Whole_PipeLine 
-from WackyWarper.Augmentor import Augmentor
 
 header_directory_name = "Data" # just some name
 Number_Of_Images_Needed = 1 # images per each
