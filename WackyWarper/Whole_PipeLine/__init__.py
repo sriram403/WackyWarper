@@ -11,12 +11,19 @@ def check_and_fill_txt_file(file_path):
 
 def Give_Me_Augmented_Data(IMG_DIR:dir, 
                            LABEL_DIR:dir, 
-                           TRAIN_RATIO:float, 
                            VALID_RATIO:float,
                            AUGMENTED_HEADER_NAME:str, 
-                           NUMBER_OF_IMAGES_NEEDED:int):
+                           NUMBER_OF_IMAGES_NEEDED:int,
+                           SKLEARN_SPLIT:bool,
+                           TRAIN_RATIO:float=0.8, 
+                           TEST_RATIO:int = 0.05):
     
-    helper_functions.Split_Dataset(IMG_DIR, LABEL_DIR, TRAIN_RATIO, VALID_RATIO)
+    print(">>Data Split Started<<")
+    if SKLEARN_SPLIT:
+        helper_functions.SkLearn_Split_Dataset(IMG_DIR, LABEL_DIR, VALID_RATIO, TEST_RATIO)
+    else:
+        helper_functions.Custom_Split_Dataset(IMG_DIR, LABEL_DIR, TRAIN_RATIO, VALID_RATIO)
+    print(">>Dataset split completed successfully.<<")
 
     list_of_directory = ["Splitted\Train", "Splitted\Valid", "Splitted\Test"]
 
