@@ -1,4 +1,3 @@
-source /home/Sriram/Drift_Env/bin/activate
 gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
 python move_zips.py Indoor
 python move_zips.py Outdoor
