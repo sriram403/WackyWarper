@@ -1,0 +1,11 @@
+source /home/Sriram/Drift_Env/bin/activate
+gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
+python move_zips.py Indoor
+python move_zips.py Outdoor
+for file in data/To_Send/Indoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
+for file in data/To_Send/Outdoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
+python create_image_labels_folder.py --cam_view "Indoor" --version "V16"
+python create_image_labels_folder.py --cam_view "Outdoor" --version "V16"
+python main.py
+python visualize.py V16_dlt_Data -n 30 -c child adult -o visualized
+gsutil -m cp -r Splitted/* gs://cvat-to-training/Unique_AC_Data_Backup/

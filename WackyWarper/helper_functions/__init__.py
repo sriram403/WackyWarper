@@ -2,29 +2,23 @@ import cv2
 import os
 import random
 import shutil
+from tqdm import tqdm
 from sklearn.model_selection import train_test_split
 
-def Visualize(image_path,label_path):
-    
+def Visualize(image_path, label_path):
     '''
     ONLY ONE IMAGE PATH AND LABEL PATH!
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     image_path-> needs to be a image file path
-    for eg:
-    "A:augmentor\Image_Augmentor_YOLO\helper_functions\elon_musk.jpg"
-    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     label_path-> needs to be your yolo label path
-    for eg:
-    "A:augmentor\Image_Augmentor_YOLO\helper_functions\elon_musk.txt"
     ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     '''
     image = cv2.imread(image_path)
-    # Resize image for display
-    scale_percent = 50  # Adjust the value as needed
+    scale_percent = 50
     width = int(image.shape[1] * scale_percent / 100)
     height = int(image.shape[0] * scale_percent / 100)
     image = cv2.resize(image, (width, height))
-    label_path = label_path.replace("/","\\")
+
     with open(label_path, 'r') as f:
         lines = f.readlines()
 
@@ -41,61 +35,39 @@ def Visualize(image_path,label_path):
         x_max = int(x_center + width / 2)
         y_max = int(y_center + height / 2)
 
-        # Draw bounding box rectangle
         cv2.rectangle(image, (x_min, y_min), (x_max, y_max), (0, 255, 0), 2)
+        cv2.putText(image, f"{class_id}", (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 0), 2)
 
-        # Display class label
-        class_label = f"{class_id}"
-        cv2.putText(image, class_label, (x_min, y_min - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 0, 0), 2)
-
-    # Display the image with bounding box annotations
     cv2.imshow("Image with Bounding Boxes", image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-def Custom_Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
 
+def Custom_Split_Dataset(image_dir, label_dir, train_ratio, valid_ratio):
     '''
     image_dir-> Your image directory
-    
     label_dir-> Your label directory
-    
-    train_ratio-> training data ratio like eg:(.80)
-    
-    valid_ratio-> validation data ratio like eg:(.15)
-    
-    test_ratio -> (automatically done for you!)
-
-    output:
-    You would just get a folder of Train, Valid, Test 
-    which contains subfolders of images, labels
+    train_ratio-> training data ratio eg: 0.80
+    valid_ratio-> validation data ratio eg: 0.20
+    Remaining images (if any) go to Test.
     '''
-    # Create directories for train, test, and validation sets
-    train_dir = "Splitted\Train"
-    valid_dir = "Splitted\Valid"
-    test_dir = "Splitted\Test"
+    train_dir = os.path.join("Splitted", "Train")
+    valid_dir = os.path.join("Splitted", "Valid")
+    test_dir  = os.path.join("Splitted", "Test")
 
-    if os.path.exists(train_dir):
-        shutil.rmtree(train_dir)
-    
-    os.makedirs(train_dir, exist_ok=True)
-    os.makedirs(test_dir, exist_ok=True)
-    os.makedirs(valid_dir, exist_ok=True)
+    for d in [train_dir, valid_dir, test_dir]:
+        if os.path.exists(d):
+            shutil.rmtree(d)
+        os.makedirs(d, exist_ok=True)
 
-    # Get a list of all image file names with the .jpg extension in the image directory
-    image_files = [f for f in os.listdir(image_dir)]
+    image_files = os.listdir(image_dir)
+    random.shuffle(image_files)
 
-    # Shuffle the list of image files randomly
-    image_file = random.sample(image_files,len(image_files))
-
-    # Calculate the number of images for each split based on the ratios
-    total_images = len(image_file)
+    total_images = len(image_files)
     train_split = int(total_images * train_ratio)
     valid_split = int(total_images * valid_ratio)
 
-    # Move images to the respective split directories
-    random.shuffle(image_file)
-    for i, img_fle in enumerate(image_file):
+    for i, img_fle in enumerate(tqdm(image_files, desc="Splitting", unit="img")):
         if i < train_split:
             split_dir = train_dir
         elif i < train_split + valid_split:
@@ -103,142 +75,51 @@ def Custom_Split_Dataset(image_dir, label_dir, train_ratio,  valid_ratio):
         else:
             split_dir = test_dir
 
-        # Copy the image file to the split directory
         image_src = os.path.join(image_dir, img_fle)
         image_dst = os.path.join(split_dir, "images", img_fle)
-
         os.makedirs(os.path.dirname(image_dst), exist_ok=True)
         shutil.copy(image_src, image_dst)
 
-        # Get the corresponding label file
-        label_prefix = os.path.splitext(img_fle)[0]
-        label_file = label_prefix + ".txt"
-        label_path = os.path.join(label_dir,label_file)
+        label_file = os.path.splitext(img_fle)[0] + ".txt"
+        label_path = os.path.join(label_dir, label_file)
+        label_dst  = os.path.join(split_dir, "labels", label_file)
+        os.makedirs(os.path.dirname(label_dst), exist_ok=True)
         if os.path.exists(label_path):
-            # Copy the label file to the split directory
-            label_dst = os.path.join(split_dir, "labels", label_file)
-            os.makedirs(os.path.dirname(label_dst), exist_ok=True)
             shutil.copy(label_path, label_dst)
-        else:
-            label_dst = os.path.join(split_dir, "labels", label_file)
-            os.makedirs(os.path.dirname(label_dst), exist_ok=True)
 
 
 def SkLearn_Split_Dataset(image_dir, label_dir, valid_ratio, test_ratio):
-    image_dir = os.listdir("i/")
-    label_dir = os.listdir("l/")
+    image_files = os.listdir(image_dir)
 
-    for img in image_dir:
-        label_file = img.split(".")[0] + ".txt"
-        label_path = os.path.join("l",label_file)
-        if os.path.exists(label_path):
-            pass
-        else:
-            with open(label_path,"w") as f:
+    for img in image_files:
+        label_file = os.path.splitext(img)[0] + ".txt"
+        label_path = os.path.join(label_dir, label_file)
+        if not os.path.exists(label_path):
+            with open(label_path, "w") as f:
                 f.write("0 0 0 0 0")
-    
-    label_dir = os.listdir("l/")
-    # Split the data into training, validation, and test sets
-    X_train, X_valid, y_train, y_valid = train_test_split(image_dir, label_dir, test_size=valid_ratio, random_state=42)
-    X_valid, X_test, y_valid, y_test = train_test_split(X_valid, y_valid, test_size=test_ratio, random_state=42)
-    split_dir = "Splitted\Train"
 
-    if os.path.exists(split_dir):
-        shutil.rmtree(split_dir)
+    label_files = os.listdir(label_dir)
 
-    os.makedirs(split_dir, exist_ok=True)
+    X_train, X_valid, y_train, y_valid = train_test_split(image_files, label_files, test_size=valid_ratio, random_state=42)
+    X_valid, X_test, y_valid, y_test   = train_test_split(X_valid, y_valid, test_size=test_ratio, random_state=42)
 
-    for i in X_train:
-        org = os.path.join("i",i)
-        dst = os.path.join(split_dir,"Images",i)
+    for split_name, img_files, lbl_files in [("Train", X_train, y_train),
+                                              ("Valid",  X_valid, y_valid),
+                                              ("Test",   X_test,  y_test)]:
+        split_dir = os.path.join("Splitted", split_name)
 
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        if os.path.exists(split_dir):
+            shutil.rmtree(split_dir)
+        os.makedirs(split_dir, exist_ok=True)
 
-        shutil.copy(org,dst)
+        for img in tqdm(img_files, desc=f"Splitting {split_name} images", unit="img"):
+            src = os.path.join(image_dir, img)
+            dst = os.path.join(split_dir, "images", img)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy(src, dst)
 
-    for j in y_train:
-        org = os.path.join("l",j)
-        dst = os.path.join(split_dir,"Labels",j)
-
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-
-        shutil.copy(org,dst)
-
-    split_dir = "Splitted\Valid"
-
-    if os.path.exists(split_dir):
-        shutil.rmtree(split_dir)
-
-    os.makedirs(split_dir, exist_ok=True)
-
-    for i in X_valid:
-        org = os.path.join("i",i)
-        dst = os.path.join(split_dir,"Images",i)
-
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-
-        shutil.copy(org,dst)
-
-    for j in y_valid:
-        org = os.path.join("l",j)
-        dst = os.path.join(split_dir,"Labels",j)
-
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-
-        shutil.copy(org,dst)
-
-    split_dir = "Splitted\Test"
-
-    if os.path.exists(split_dir):
-        shutil.rmtree(split_dir)
-
-    os.makedirs(split_dir, exist_ok=True)
-
-    for i in X_test:
-        org = os.path.join("i",i)
-        dst = os.path.join(split_dir,"Images",i)
-
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-
-        shutil.copy(org,dst)
-
-    for j in y_test:
-        org = os.path.join("l",j)
-        dst = os.path.join(split_dir,"Labels",j)
-
-        os.makedirs(os.path.dirname(dst), exist_ok=True)
-
-        shutil.copy(org,dst)
-
-
-# Under construction...
-# def Rename_Files(Image_Dir_List,Label_Dir_List,New_Name):
-#     '''
-#     Image_Dir_List-> Your Image directory
-#     Label_Dir_List-> Your Label directory
-#     New_Name-> What your files to be renamed after
-#     '''
-#     folder_images_path = Image_Dir_List
-#     folder_label_path = Label_Dir_List
-#     Give_Me_Name = New_Name
-
-#     for dir in folder_images_path:
-#         file_list = os.listdir(dir)
-
-#         for i, filename in enumerate(file_list):
-#             new_filename = f"{Give_Me_Name}{i+1}.jpg"
-#             old_filepath = os.path.join(dir, filename)
-#             new_filepath = os.path.join(dir, new_filename)
-#             os.rename(old_filepath, new_filepath)
-            
-#             print(f"Renamed {filename} to {new_filename}")
-#     for dir in folder_label_path:
-#         file_list = os.listdir(dir)
-
-#         for i,filename in enumerate(file_list):
-#             new_filename = f"{Give_Me_Name}{i+1}.txt"
-#             old_filepath = os.path.join(dir,filename)
-#             new_filepath = os.path.join(dir,new_filename)
-#             os.rename(old_filepath,new_filepath)
-
-#             print(f"Renamed {filename} to {new_filename}")
+        for lbl in tqdm(lbl_files, desc=f"Splitting {split_name} labels", unit="lbl"):
+            src = os.path.join(label_dir, lbl)
+            dst = os.path.join(split_dir, "labels", lbl)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy(src, dst)
