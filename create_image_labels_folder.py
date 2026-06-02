@@ -36,7 +36,9 @@ def main():
 
     all_files = [
         f for f in input_root.rglob("*")
-        if f.is_file() and FILE_PATTERN.match(f.name)
+        if f.is_file()
+        and FILE_PATTERN.match(f.name)
+        and args.cam_view in f.parts
     ]
 
     if not all_files:

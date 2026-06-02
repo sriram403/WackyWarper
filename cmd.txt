@@ -1,8 +1,8 @@
 gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
 python move_zips.py Indoor
 python move_zips.py Outdoor
-for file in data/To_Send/Indoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
-for file in data/To_Send/Outdoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
+for file in data/Indoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
+for file in data/Outdoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
 python create_image_labels_folder.py --cam_view "Indoor" --version "V16"
 python create_image_labels_folder.py --cam_view "Outdoor" --version "V16"
 python main.py

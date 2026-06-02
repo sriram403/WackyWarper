@@ -3,7 +3,7 @@ import shutil
 from pathlib import Path
 
 parser = argparse.ArgumentParser(description="Move zip files into Indoor or Outdoor folder inside data/")
-parser.add_argument("location", choices=["indoor", "outdoor"], help="Target folder: indoor or outdoor")
+parser.add_argument("location", choices=["Indoor", "Outdoor"], help="Target folder: indoor or outdoor")
 args = parser.parse_args()
 
 data_dir = Path(__file__).parent / "data"
