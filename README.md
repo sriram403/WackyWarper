@@ -1,66 +1,158 @@
-# WackyWarper: Because Your YOLO Data Needs a Twist!
+# WackyWarper
 
-**Welcome to WackyWarper,  the wackiest image augmentor for your YOLO object detection data! 🎉🔍**
+A YOLO dataset augmentation and splitting pipeline built on [Albumentations](https://albumentations.ai/).
 
-<p align="center">
-  <img src="readmefiledata\tiger.jpg" alt="WackyWarper Logo">
-</p>
+---
 
-## Why WackyWarper?🐋
-Let's face it, training your YOLO models with the same old boring dataset can be a snooze-fest! That's where WackyWarper comes to the rescue. With its mind-bending image transformations, WackyWarper injects a dose of wackiness into your YOLO training pipeline.
+## Features
 
-## Features🌟
-**Albumentation Magic:** WackyWarper harnesses the power of Albumentations, a kick-ass image augmentation library, to bring you a wide range of wacky transformations. Say goodbye to dull data and hello to absurdity!
+- **Dataset splitting** — random custom split or scikit-learn stratified split into Train / Valid / Test
+- **Image augmentation** — bounding-box-aware augmentations using Albumentations (flip, rotate, blur, color jitter, etc.)
+- **Flexible pipeline** — run splitting only, augmentation only, or both
+- **Progress bars** — tqdm progress for both splitting and augmentation steps
+- **Utility scripts** — organize raw zip files and visualize annotated outputs
 
-**Unleash the Wackiness:** WackyWarper offers an extensive collection of off-the-wall augmentations, including `RandomCrop`, `Rotate filter`, `ColorJitter`, `Blur` and MORE. Your data won't know what hit them!
+---
 
-**Worry-Free YOLO Compatibility:** Rest assured, WackyWarper generates augmented images that are fully compatible with YOLO object detection models. No headaches, just crazy object-detection fun!
+## Installation
 
-**Easy to Use:** Incorporating WackyWarper into your workflow is as smooth as slipping on a banana peel. Just a few lines of code, and voila! Your dataset is ready for a wild ride!
+```bash
+pip install opencv-python albumentations scikit-learn tqdm
+```
 
-## Quick Start📃
-To get started with WackyWarper, follow these simple steps:
+---
 
-1. Install Albumentations library using pip:
+## Quick Start
 
-    `pip install -r requirements.txt`
+```python
+from WackyWarper import Whole_PipeLine
 
-2. Give your `Image dir` and `Label dir` as an argument to the function
+Whole_PipeLine.Give_Me_Augmented_Data(
+    IMG_DIR="images/",
+    LABEL_DIR="labels/",
+    VALID_RATIO=0.20,
+    TEST_RATIO=0.05,
+    SKLEARN_SPLIT=True,
+    AUGMENTED_HEADER_NAME="Data",
+    NUMBER_OF_IMAGES_NEEDED=3,
+)
+```
 
-3. Run the `main.py` file
+Output structure:
+```
+Data/
+  Train/
+    images/
+    labels/
+  Valid/
+    images/
+    labels/
+  Test/
+    images/
+    labels/
+```
 
-4. To change the Augmentations values
+---
 
-    Just go to the `WackyWarper\config\albumentation_custom.py` where you can change the values nothing is off-limit.
+## Pipeline Parameters
 
-And that's it! Your YOLO dataset is now wackier than ever before! 🚀🤪
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `IMG_DIR` | str | — | Path to source images folder |
+| `LABEL_DIR` | str | — | Path to source YOLO labels folder |
+| `VALID_RATIO` | float | — | Fraction of data for validation |
+| `TEST_RATIO` | float | `0.05` | Fraction of validation split used for test |
+| `SKLEARN_SPLIT` | bool | — | `True` = sklearn split, `False` = custom random split |
+| `TRAIN_RATIO` | float | `0.8` | Used only when `SKLEARN_SPLIT=False` |
+| `AUGMENTED_HEADER_NAME` | str | — | Output folder name |
+| `NUMBER_OF_IMAGES_NEEDED` | int | — | Augmented copies per image |
+| `SPLIT` | bool | `True` | Set `False` to skip splitting (use existing `Splitted/`) |
+| `AUGMENT` | bool | `True` | Set `False` to skip augmentation (split only) |
 
-## How to use this 🤖
-To Start you need your data (Image, Label) `yolo format for now`
+### Split only
 
-Inside the `main.py` mention your Image directory in the IMG_DIR and label directory in LABEL_DIR like
+```python
+Whole_PipeLine.Give_Me_Augmented_Data(
+    ...,
+    SPLIT=True,
+    AUGMENT=False,
+)
+```
 
-<p align="center">
-  <img src="readmefiledata\main .png" alt="mention names">
-</p>
+### Augment only (reuse existing split)
 
-And choose the other options you need and run ☕
+```python
+Whole_PipeLine.Give_Me_Augmented_Data(
+    ...,
+    SPLIT=False,
+    AUGMENT=True,
+)
+```
 
-## Contribute🐱‍💻
-We welcome contributions from fellow enthusiasts like yourself! If you have an idea for a new transformation or would like to fix any issues, please feel free to submit a pull request. We promise we won't judge you for your wackiness!🥂
+---
 
-## Support🐱‍🐉
-If you have any issues or have any questions, reach out to me in..
+## Augmentation Config
 
-[twitter](https://twitter.com/sriram93298?t=Slkk-hhkX8nmGKV4PPAIzg&s=09)
+Augmentation transforms are defined in `WackyWarper/config/albumentation_custom.py`. Edit the probability and magnitude values there to customize the pipeline.
 
-[linkedin](https://www.linkedin.com/in/sriram36/)
+```python
+HF = 0.5     # HorizontalFlip probability
+RBC = 0.2    # RandomBrightnessContrast probability
+LIMIT = 10   # Max rotation angle
+B = 0.2      # Blur probability
+VF = 0.8     # VerticalFlip probability
+# ...
+```
 
-## License
-WackyWarper is licensed under the Wacky Open Source License (WOSL). You're free to use, modify, and distribute WackyWarper in any way you find amusing.
+---
 
-Happy warping! 🌪️🎭
+## Utility Scripts
 
+### move_zips.py
 
+Moves all `.zip` files from `data/` into `data/Indoor/` or `data/Outdoor/`.
 
+```bash
+python move_zips.py indoor
+python move_zips.py outdoor
+```
 
+### visualize.py
+
+Draws YOLO bounding boxes on random images from an augmented dataset and saves annotated JPGs.
+
+```bash
+# Basic usage
+python visualize.py V16_dlt_Data
+
+# With class names, custom count, custom output folder
+python visualize.py V16_dlt_Data -n 30 -c adult child -o visualized/
+```
+
+| Argument | Default | Description |
+|---|---|---|
+| `folder` | — | Augmented dataset folder |
+| `-n` / `--count` | `20` | Number of random images to visualize |
+| `-c` / `--classes` | class IDs | Class names in label order |
+| `-o` / `--output` | `visualized/` | Output folder for annotated images |
+
+Supports both flat (`images/`, `labels/`) and split (`Train/images/`, etc.) folder layouts.
+
+---
+
+## Label Format
+
+YOLO format — one `.txt` per image, one detection per line:
+
+```
+<class_id> <x_center> <y_center> <width> <height>
+```
+
+All values normalized to `[0, 1]`.
+
+---
+
+## Links
+
+- [LinkedIn](https://www.linkedin.com/in/sriram36/)
+- [Twitter](https://twitter.com/sriram93298?t=Slkk-hhkX8nmGKV4PPAIzg&s=09)
