@@ -52,7 +52,7 @@ def Custom_Split_Dataset(image_dir, label_dir, train_ratio, valid_ratio):
     Remaining images (if any) go to Test.
     '''
     train_dir = os.path.join("Splitted", "Train")
-    valid_dir = os.path.join("Splitted", "Valid")
+    valid_dir = os.path.join("Splitted", "valid_test")
     test_dir  = os.path.join("Splitted", "Test")
 
     for d in [train_dir, valid_dir, test_dir]:
@@ -104,7 +104,7 @@ def SkLearn_Split_Dataset(image_dir, label_dir, valid_ratio, test_ratio):
     X_valid, X_test, y_valid, y_test   = train_test_split(X_valid, y_valid, test_size=test_ratio, random_state=42)
 
     for split_name, img_files, lbl_files in [("Train", X_train, y_train),
-                                              ("Valid",  X_valid, y_valid),
+                                              ("valid_test", X_valid, y_valid),
                                               ("Test",   X_test,  y_test)]:
         split_dir = os.path.join("Splitted", split_name)
 
