@@ -36,6 +36,8 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str, images_neede
                     content = f.readlines()
                 for line in content:
                     label = [float(value) for value in line.strip().split(" ")]
+                    if label[3] <= 0 or label[4] <= 0:
+                        continue
                     class_value.append(int(label[0]))
                     coords_list.append(_clamp_yolo_bbox(label[1:5]))
 
@@ -114,6 +116,8 @@ def New_Start_Augmentor(list_of_directory:list, header_folder_name:str, images_n
                     content = f.readlines()
                 for line in content:
                     label = [float(value) for value in line.strip().split(" ")]
+                    if label[3] <= 0 or label[4] <= 0:
+                        continue
                     class_value.append(int(label[0]))
                     coords_list.append(_clamp_yolo_bbox(label[1:5]))
 
