@@ -20,7 +20,7 @@ def Give_Me_Augmented_Data(IMG_DIR:dir,
                            SPLIT:bool=True,
                            AUGMENT:bool=True):
 
-    list_of_directory = [os.path.join("Splitted", "Train")]
+    list_of_directory = [os.path.join("Splitted", "Train"),os.path.join("Splitted","valid_test")]
 
     if SPLIT:
         print(">>Data Split Started<<")
