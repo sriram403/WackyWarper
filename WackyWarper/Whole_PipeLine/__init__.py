@@ -20,7 +20,8 @@ def Give_Me_Augmented_Data(IMG_DIR:dir,
                            SPLIT:bool=True,
                            AUGMENT:bool=True):
 
-    list_of_directory = [os.path.join("Splitted", "Train"),os.path.join("Splitted","valid_test")]
+    train_directory = [os.path.join("Splitted", "Train")]
+    valid_directory = os.path.join("Splitted", "valid_test")
 
     if SPLIT:
         print(">>Data Split Started<<")
@@ -31,7 +32,17 @@ def Give_Me_Augmented_Data(IMG_DIR:dir,
         print(">>Dataset split completed successfully.<<")
 
     if AUGMENT:
-        Augmentor.New_Start_Augmentor(list_of_directory, AUGMENTED_HEADER_NAME, NUMBER_OF_IMAGES_NEEDED)
+        Augmentor.New_Start_Augmentor(train_directory, AUGMENTED_HEADER_NAME, NUMBER_OF_IMAGES_NEEDED)
+
+    # Copy valid split originals as-is (no augmentation)
+    for sub in ("images", "labels"):
+        src = os.path.join(valid_directory, sub)
+        dst = os.path.join(AUGMENTED_HEADER_NAME, "valid_test", sub)
+        if os.path.exists(src):
+            os.makedirs(dst, exist_ok=True)
+            for fname in os.listdir(src):
+                shutil.copy2(os.path.join(src, fname), os.path.join(dst, fname))
+    print(">>Valid split copied to output folder (originals only)<<")
 
     print(">>I Finished All the Process<<")
     
