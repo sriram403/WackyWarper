@@ -15,8 +15,6 @@ def Give_Me_Augmented_Data(IMG_DIR:dir,
                            AUGMENTED_HEADER_NAME:str,
                            NUMBER_OF_IMAGES_NEEDED:int,
                            SKLEARN_SPLIT:bool,
-                           OLD_IMG_DIR:dir=None,
-                           OLD_LABEL_DIR:dir=None,
                            TRAIN_RATIO:float=0.8,
                            TEST_RATIO:float=0.05,
                            SPLIT:bool=True,
@@ -28,9 +26,9 @@ def Give_Me_Augmented_Data(IMG_DIR:dir,
     if SPLIT:
         print(">>Data Split Started<<")
         if SKLEARN_SPLIT:
-            helper_functions.SkLearn_Split_Dataset(IMG_DIR, LABEL_DIR, VALID_RATIO, TEST_RATIO, OLD_IMG_DIR, OLD_LABEL_DIR)
+            helper_functions.SkLearn_Split_Dataset(IMG_DIR, LABEL_DIR, VALID_RATIO, TEST_RATIO)
         else:
-            helper_functions.Custom_Split_Dataset(IMG_DIR, LABEL_DIR, TRAIN_RATIO, VALID_RATIO, OLD_IMG_DIR, OLD_LABEL_DIR)
+            helper_functions.Custom_Split_Dataset(IMG_DIR, LABEL_DIR, TRAIN_RATIO, VALID_RATIO)
         print(">>Dataset split completed successfully.<<")
 
     if AUGMENT:

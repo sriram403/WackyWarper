@@ -43,23 +43,12 @@ def Visualize(image_path, label_path):
     cv2.destroyAllWindows()
 
 
-def _collect_sources(image_dir, label_dir, old_image_dir=None, old_label_dir=None):
-    '''Build a (image_dir, label_dir, filename) list covering the new data plus,
-    if given, the old training data, so both get split/augmented together.'''
-    sources = [(image_dir, label_dir, f) for f in os.listdir(image_dir)]
-    if old_image_dir and old_label_dir:
-        sources += [(old_image_dir, old_label_dir, f) for f in os.listdir(old_image_dir)]
-    return sources
-
-
-def Custom_Split_Dataset(image_dir, label_dir, train_ratio, valid_ratio, old_image_dir=None, old_label_dir=None):
+def Custom_Split_Dataset(image_dir, label_dir, train_ratio, valid_ratio):
     '''
-    image_dir-> Your (new) image directory
-    label_dir-> Your (new) label directory
+    image_dir-> Your image directory
+    label_dir-> Your label directory
     train_ratio-> training data ratio eg: 0.80
     valid_ratio-> validation data ratio eg: 0.20
-    old_image_dir/old_label_dir-> optional old training data, combined with
-    image_dir/label_dir before splitting.
     Remaining images (if any) go to Test.
     '''
     train_dir = os.path.join("Splitted", "Train")
@@ -71,14 +60,14 @@ def Custom_Split_Dataset(image_dir, label_dir, train_ratio, valid_ratio, old_ima
             shutil.rmtree(d)
         os.makedirs(d, exist_ok=True)
 
-    sources = _collect_sources(image_dir, label_dir, old_image_dir, old_label_dir)
-    random.shuffle(sources)
+    image_files = os.listdir(image_dir)
+    random.shuffle(image_files)
 
-    total_images = len(sources)
+    total_images = len(image_files)
     train_split = int(total_images * train_ratio)
     valid_split = int(total_images * valid_ratio)
 
-    for i, (src_img_dir, src_lbl_dir, img_fle) in enumerate(tqdm(sources, desc="Splitting", unit="img")):
+    for i, img_fle in enumerate(tqdm(image_files, desc="Splitting", unit="img")):
         if i < train_split:
             split_dir = train_dir
         elif i < train_split + valid_split:
@@ -86,47 +75,51 @@ def Custom_Split_Dataset(image_dir, label_dir, train_ratio, valid_ratio, old_ima
         else:
             split_dir = test_dir
 
-        image_src = os.path.join(src_img_dir, img_fle)
+        image_src = os.path.join(image_dir, img_fle)
         image_dst = os.path.join(split_dir, "images", img_fle)
         os.makedirs(os.path.dirname(image_dst), exist_ok=True)
         shutil.copy(image_src, image_dst)
 
         label_file = os.path.splitext(img_fle)[0] + ".txt"
-        label_path = os.path.join(src_lbl_dir, label_file)
+        label_path = os.path.join(label_dir, label_file)
         label_dst  = os.path.join(split_dir, "labels", label_file)
         os.makedirs(os.path.dirname(label_dst), exist_ok=True)
         if os.path.exists(label_path):
             shutil.copy(label_path, label_dst)
 
 
-def SkLearn_Split_Dataset(image_dir, label_dir, valid_ratio, test_ratio, old_image_dir=None, old_label_dir=None):
-    sources = _collect_sources(image_dir, label_dir, old_image_dir, old_label_dir)
+def SkLearn_Split_Dataset(image_dir, label_dir, valid_ratio, test_ratio):
+    image_files = os.listdir(image_dir)
 
-    for src_img_dir, src_lbl_dir, img in sources:
+    for img in image_files:
         label_file = os.path.splitext(img)[0] + ".txt"
-        label_path = os.path.join(src_lbl_dir, label_file)
+        label_path = os.path.join(label_dir, label_file)
         if not os.path.exists(label_path):
             with open(label_path, "w") as f:
                 f.write("0 0 0 0 0")
 
-    X_train, X_valid = train_test_split(sources, test_size=valid_ratio, random_state=42)
-    X_valid, X_test   = train_test_split(X_valid, test_size=test_ratio, random_state=42)
+    label_files = os.listdir(label_dir)
 
-    for split_name, items in [("Train", X_train), ("valid_test", X_valid), ("Test", X_test)]:
+    X_train, X_valid, y_train, y_valid = train_test_split(image_files, label_files, test_size=valid_ratio, random_state=42)
+    X_valid, X_test, y_valid, y_test   = train_test_split(X_valid, y_valid, test_size=test_ratio, random_state=42)
+
+    for split_name, img_files, lbl_files in [("Train", X_train, y_train),
+                                              ("valid_test", X_valid, y_valid),
+                                              ("Test",   X_test,  y_test)]:
         split_dir = os.path.join("Splitted", split_name)
 
         if os.path.exists(split_dir):
             shutil.rmtree(split_dir)
         os.makedirs(split_dir, exist_ok=True)
 
-        for src_img_dir, src_lbl_dir, img in tqdm(items, desc=f"Splitting {split_name}", unit="file"):
-            image_src = os.path.join(src_img_dir, img)
-            image_dst = os.path.join(split_dir, "images", img)
-            os.makedirs(os.path.dirname(image_dst), exist_ok=True)
-            shutil.copy(image_src, image_dst)
+        for img in tqdm(img_files, desc=f"Splitting {split_name} images", unit="img"):
+            src = os.path.join(image_dir, img)
+            dst = os.path.join(split_dir, "images", img)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy(src, dst)
 
-            label_file = os.path.splitext(img)[0] + ".txt"
-            label_src = os.path.join(src_lbl_dir, label_file)
-            label_dst = os.path.join(split_dir, "labels", label_file)
-            os.makedirs(os.path.dirname(label_dst), exist_ok=True)
-            shutil.copy(label_src, label_dst)
+        for lbl in tqdm(lbl_files, desc=f"Splitting {split_name} labels", unit="lbl"):
+            src = os.path.join(label_dir, lbl)
+            dst = os.path.join(split_dir, "labels", lbl)
+            os.makedirs(os.path.dirname(dst), exist_ok=True)
+            shutil.copy(src, dst)
