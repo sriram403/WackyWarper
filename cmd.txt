@@ -1,9 +1,7 @@
 gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
-python move_zips.py Indoor
-python move_zips.py Outdoor
-for file in data/Indoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
-for file in data/Outdoor/*.zip; do   unzip -o "$file" -d Unzipped/; done
-python create_image_labels_folder.py --version "V17"
+python move_zips.py
+python extract_zips.py
+python3 create_image_labels_folder.py --version V17
 python main.py
 python visualize.py V17_dlt_Data -n 30 -c child adult -o visualized
 gsutil -m cp -r Splitted/* gs://cvat-to-training/Unique_AC_Data_Backup/

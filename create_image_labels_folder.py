@@ -34,7 +34,11 @@ def main():
         "auto-tagging each file as Indoor/Outdoor from its folder path."
     )
     parser.add_argument("--version", required=True, help='Version tag, e.g. "V17"')
-    parser.add_argument("--input_dir", default="Unzipped", help="Root of the unzipped folder (default: Unzipped)")
+    parser.add_argument(
+        "--input_dir",
+        default=str(Path(__file__).parent.parent / "extracted"),
+        help="Root of the unzipped folder (default: extracted/ above the script's folder)",
+    )
     parser.add_argument("--output_dir", default="output", help="Destination root; images/ and labels/ created inside (default: output)")
     args = parser.parse_args()
 
@@ -74,9 +78,11 @@ def main():
         shutil.copy2(src, dest)
 
     copied = len(all_files) - skipped - len(unresolved)
+    num_images = sum(1 for _ in images_dir.iterdir())
+    num_labels = sum(1 for _ in labels_dir.iterdir())
     print(f"\nDone. {copied} files copied, {skipped} skipped (already existed), {len(unresolved)} skipped (no Indoor/Outdoor tag in path).")
-    print(f"  Images -> {images_dir}")
-    print(f"  Labels -> {labels_dir}")
+    print(f"  Images -> {images_dir} ({num_images} files)")
+    print(f"  Labels -> {labels_dir} ({num_labels} files)")
 
     if unresolved:
         print("\nFiles with no Indoor/Outdoor tag found in their path (first 10):")
