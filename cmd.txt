@@ -11,7 +11,7 @@ if it already has gcsfuse configured, then
     1. gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
 
 # copy or move the zip to local instance
-python copy_zips.py
+python move_zips.py
 
 # extract the copied zips
 python extract_zips.py
