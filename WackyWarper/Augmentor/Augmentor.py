@@ -36,7 +36,7 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str, images_neede
             img = cv2.imread(os.path.join(partition, 'images', image))
             coords_list = []
             class_value = []
-            label_path = os.path.join(partition, 'labels', f'{image.split(".")[0]}.txt')
+            label_path = os.path.join(partition, 'labels', f'{os.path.splitext(image)[0]}.txt')
             if os.path.exists(label_path):
                 with open(label_path, 'r') as f:
                     content = f.readlines()
@@ -60,13 +60,13 @@ def Start_Augmentor(list_of_directory:list, header_folder_name:str, images_neede
                     os.makedirs(images_dir, exist_ok=True)
 
                     original_image_path = os.path.join(partition, 'images', image)
-                    new_image_path = os.path.join(images_dir, f'{image.split(".")[0]}.jpg')
+                    new_image_path = os.path.join(images_dir, f'{os.path.splitext(image)[0]}.jpg')
                     shutil.copyfile(original_image_path, new_image_path)
 
                     labels_dir = os.path.join(folder_name, partitionl, 'labels')
                     os.makedirs(labels_dir, exist_ok=True)
 
-                    stem = image.split(".")[0]
+                    stem = os.path.splitext(image)[0]
                     if coords_list:
                         shutil.copyfile(
                             os.path.join(partition, 'labels', f'{stem}.txt'),
@@ -103,7 +103,7 @@ def _augment_one(partition:str, image:str, folder_name:str, images_needed:int):
     img = cv2.imread(os.path.join(partition, 'images', image))
     coords_list = []
     class_value = []
-    label_path = os.path.join(partition, 'labels', f'{image.split(".")[0]}.txt')
+    label_path = os.path.join(partition, 'labels', f'{os.path.splitext(image)[0]}.txt')
 
     if os.path.exists(label_path):
         with open(label_path, 'r') as f:
@@ -128,13 +128,13 @@ def _augment_one(partition:str, image:str, folder_name:str, images_needed:int):
             os.makedirs(images_dir, exist_ok=True)
 
             original_image_path = os.path.join(partition, 'images', image)
-            new_image_path = os.path.join(images_dir, f'{image.split(".")[0]}.jpg')
+            new_image_path = os.path.join(images_dir, f'{os.path.splitext(image)[0]}.jpg')
             shutil.copyfile(original_image_path, new_image_path)
 
             labels_dir = os.path.join(folder_name, partitionl, 'labels')
             os.makedirs(labels_dir, exist_ok=True)
 
-            stem = image.split(".")[0]
+            stem = os.path.splitext(image)[0]
             if coords_list:
                 shutil.copyfile(
                     os.path.join(partition, 'labels', f'{stem}.txt'),
