@@ -1,8 +1,9 @@
+import argparse
 from pathlib import Path
 
 from tqdm import tqdm
 
-# Filenames (as they appear in data/) to copy to the local dir.
+# Filenames (as they appear in data/) to copy (or move) to the local dir.
 FILES_TO_MOVE = [
     "1st Month.zip",
     "2nd Month.zip",
@@ -11,6 +12,10 @@ FILES_TO_MOVE = [
     "5th Month.zip",
     "6th Month.zip",
 ]
+
+parser = argparse.ArgumentParser(description="Copy (default) or move zip files from data/ to the local dir.")
+parser.add_argument("--move", action="store_true", help="Delete the source zip from data/ after copying (default: keep it, i.e. copy only)")
+args = parser.parse_args()
 
 data_dir = Path(__file__).parent.parent / "data"
 target_dir = Path(__file__).parent.parent
@@ -43,6 +48,11 @@ else:
                 fdst.write(chunk)
                 pbar.update(len(chunk))
 
-        tqdm.write(f"Copied {zip_file.name} -> {target_dir}/")
+        if args.move:
+            zip_file.unlink()
+            tqdm.write(f"Moved {zip_file.name} -> {target_dir}/")
+        else:
+            tqdm.write(f"Copied {zip_file.name} -> {target_dir}/")
 
-    print(f"\nDone. {len(zip_files)} zip file(s) copied to {target_dir}/")
+    action = "moved" if args.move else "copied"
+    print(f"\nDone. {len(zip_files)} zip file(s) {action} to {target_dir}/")

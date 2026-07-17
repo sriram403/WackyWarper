@@ -1,7 +1,29 @@
-gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
-python move_zips.py
+# To connect cvat-to-training bucket to the instance
+if it's new instance without gcsfuse
+    1. curl -sLO https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v3.10.0/gcsfuse-3.10.0-1.x86_64.rpm
+    2. sudo dnf install -y ./gcsfuse-3.10.0-1.x86_64.rpm
+
+    3. gcsfuse --key-file=/home/ec2-user/cvat-access.json \
+        --file-mode=777 --dir-mode=777 --implicit-dirs \
+        cvat-to-training /home/ec2-user/Training_Model/Sriram/data
+
+if it already has gcsfuse configured, then
+    1. gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
+
+# copy or move the zip to local instance
+python copy_zips.py
+
+# extract the copied zips
 python extract_zips.py
+
+#adding version and indoor or outdoor info to the filename
 python3 create_image_labels_folder.py --version V17
+
+#starting the augmentation pipeline
 python main.py
+
+#visualize augmented images, give the augmented folder, it would show random sample of images to visualize
 python visualize.py V17_dlt_Data -n 30 -c child adult -o visualized
+
+#push the original splitted data into backup folder in cvat-to-training bucket
 gsutil -m cp -r Splitted/* gs://cvat-to-training/Unique_AC_Data_Backup/
