@@ -1,29 +1,66 @@
-# To connect cvat-to-training bucket to the instance
-if it's new instance without gcsfuse
+================================================================================
+ WackyWarper — End-to-End Pipeline Commands
+================================================================================
+
+--------------------------------------------------------------------------------
+ 0. Connect the cvat-to-training GCS bucket to the instance
+--------------------------------------------------------------------------------
+
+  If this is a NEW instance without gcsfuse installed:
+
     1. curl -sLO https://github.com/GoogleCloudPlatform/gcsfuse/releases/download/v3.10.0/gcsfuse-3.10.0-1.x86_64.rpm
     2. sudo dnf install -y ./gcsfuse-3.10.0-1.x86_64.rpm
-
     3. gcsfuse --key-file=/home/ec2-user/cvat-access.json \
-        --file-mode=777 --dir-mode=777 --implicit-dirs \
-        cvat-to-training /home/ec2-user/Training_Model/Sriram/data
+           --file-mode=777 --dir-mode=777 --implicit-dirs \
+           cvat-to-training /home/ec2-user/Training_Model/Sriram/data
 
-if it already has gcsfuse configured, then
+  If gcsfuse is already configured on this instance:
+
     1. gcsfuse --file-mode=777 --dir-mode=777 --implicit-dirs cvat-to-training data
 
-# copy or move the zip to local instance
-python move_zips.py
+--------------------------------------------------------------------------------
+ 1. Copy/move the zip files to the local instance, 
+    Open the script and customize the zip names you uploaded from cvat as needed
+--------------------------------------------------------------------------------
 
-# extract the copied zips
-python extract_zips.py
+  python move_zips.py
 
-#adding version and indoor or outdoor info to the filename
-python3 create_image_labels_folder.py --version V17
+--------------------------------------------------------------------------------
+ 2. Extract the copied zips
+--------------------------------------------------------------------------------
 
-#starting the augmentation pipeline
-python main.py
+  python extract_zips.py
 
-#visualize augmented images, give the augmented folder, it would show random sample of images to visualize
-python visualize.py V17_dlt_Data -n 30 -c child adult -o visualized
+--------------------------------------------------------------------------------
+ 3. Tag filenames with version + indoor/outdoor info
+--------------------------------------------------------------------------------
 
-#push the original splitted data into backup folder in cvat-to-training bucket
-gsutil -m cp -r Splitted/* gs://cvat-to-training/Unique_AC_Data_Backup/
+  python3 create_image_labels_folder.py --version V17
+
+  # Produces output/images/ and output/labels/ — this is the full CVAT dataset
+  # you uploaded, ready for preprocessing (augment, compress, etc.)
+
+--------------------------------------------------------------------------------
+ 4. Run the augmentation pipeline
+--------------------------------------------------------------------------------
+
+  python main.py
+
+--------------------------------------------------------------------------------
+ 5. Visualize augmented images
+--------------------------------------------------------------------------------
+
+  python visualize.py V17_dlt_Data -n 30 -c child adult -o visualized
+
+  # Shows a random sample of images from the given augmented folder
+
+--------------------------------------------------------------------------------
+ 6. Post-processing: back up the split data (run ONCE training is complete)
+--------------------------------------------------------------------------------
+
+  # Only after training finishes on child+adult and adult-only models, and the
+  # data has been confirmed NOT to be the cause of any model training issues.
+
+  gsutil -m cp -r Splitted/* gs://cvat-to-training/Unique_AC_Data_Backup/
+
+================================================================================
