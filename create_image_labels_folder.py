@@ -10,6 +10,17 @@ FILE_PATTERN = re.compile(
     r"^([A-Za-z0-9]+)_(\d{4})_(\d{2})_(\d{2})T(\d{2})_(\d{2})_(\d{2})\.\d+Z_\d+\.(jpg|txt)$"
 )
 
+VIEW_TAGS = ("Indoor", "Outdoor")
+
+
+def detect_cam_view(path: Path):
+    """Find the Indoor/Outdoor tag from the file's parent folders."""
+    parts_lower = {p.lower() for p in path.parts}
+    for tag in VIEW_TAGS:
+        if tag.lower() in parts_lower:
+            return tag
+    return None
+
 
 def build_output_name(stem_match, cam_view: str, version: str, ext: str) -> str:
     cam_id, yyyy, mm, dd, hh, mi, ss = stem_match.groups()[:7]
@@ -18,10 +29,16 @@ def build_output_name(stem_match, cam_view: str, version: str, ext: str) -> str:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Separate images and labels into flat output folders.")
-    parser.add_argument("--cam_view", required=True, help='Camera view tag, e.g. "Indoor"')
-    parser.add_argument("--version", required=True, help='Version tag, e.g. "V16"')
-    parser.add_argument("--input_dir", default="Unzipped", help="Root of the unzipped folder (default: Unzipped)")
+    parser = argparse.ArgumentParser(
+        description="Separate images and labels into flat output folders, "
+        "auto-tagging each file as Indoor/Outdoor from its folder path."
+    )
+    parser.add_argument("--version", required=True, help='Version tag, e.g. "V17"')
+    parser.add_argument(
+        "--input_dir",
+        default=str(Path(__file__).parent.parent / "extracted"),
+        help="Root of the unzipped folder (default: extracted/ above the script's folder)",
+    )
     parser.add_argument("--output_dir", default="output", help="Destination root; images/ and labels/ created inside (default: output)")
     args = parser.parse_args()
 
@@ -34,21 +51,22 @@ def main():
     images_dir.mkdir(parents=True, exist_ok=True)
     labels_dir.mkdir(parents=True, exist_ok=True)
 
-    all_files = [
-        f for f in input_root.rglob("*")
-        if f.is_file()
-        and FILE_PATTERN.match(f.name)
-        and args.cam_view in f.parts
-    ]
+    all_files = [f for f in input_root.rglob("*") if f.is_file() and FILE_PATTERN.match(f.name)]
 
     if not all_files:
         raise SystemExit("No matching files found. Check --input_dir path.")
 
     skipped = 0
+    unresolved = []
     for src in tqdm(all_files, desc="Processing files", unit="file"):
+        cam_view = detect_cam_view(src)
+        if cam_view is None:
+            unresolved.append(src)
+            continue
+
         m = FILE_PATTERN.match(src.name)
         ext = src.suffix.lstrip(".")
-        dest_name = build_output_name(m, args.cam_view, args.version, ext)
+        dest_name = build_output_name(m, cam_view, args.version, ext)
 
         dest_dir = images_dir if ext == "jpg" else labels_dir
         dest = dest_dir / dest_name
@@ -59,9 +77,17 @@ def main():
 
         shutil.copy2(src, dest)
 
-    print(f"\nDone. {len(all_files) - skipped} files copied, {skipped} skipped (already existed).")
-    print(f"  Images -> {images_dir}")
-    print(f"  Labels -> {labels_dir}")
+    copied = len(all_files) - skipped - len(unresolved)
+    num_images = sum(1 for _ in images_dir.iterdir())
+    num_labels = sum(1 for _ in labels_dir.iterdir())
+    print(f"\nDone. {copied} files copied, {skipped} skipped (already existed), {len(unresolved)} skipped (no Indoor/Outdoor tag in path).")
+    print(f"  Images -> {images_dir} ({num_images} files)")
+    print(f"  Labels -> {labels_dir} ({num_labels} files)")
+
+    if unresolved:
+        print("\nFiles with no Indoor/Outdoor tag found in their path (first 10):")
+        for f in unresolved[:10]:
+            print(f"  {f}")
 
 
 if __name__ == "__main__":
